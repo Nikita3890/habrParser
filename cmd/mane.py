@@ -1,9 +1,8 @@
 import requests
 URL_1 = 'https://www.python.org/'
 URL_2 = 'https://www.wikipedia.org/'
-
 def main():
-    req = requests.get(URL_2)
+    req = requests.get(URL_2, headers = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36'})
     if req.status_code == 200:
         print(req.headers)
         print(req.text)
