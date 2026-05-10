@@ -10,13 +10,13 @@ def parse_article(soup):
     data= []
 
     for article in articles_list:
-        header = articles.find("h2", class_="tm-title")
+        header = article.find("h2", class_="tm-title")
         if header == None:
             raise ValueError('article do not have header, SKIP')
         header_text = header.find('span').text
         article_link = header.find('a').attrs['href']
         article_views = article.find('span', class_='tm-icon-counter__value').text
-        dara.append({'header_text': header_text, 'article_link': article_link, 'article_views': article_views})
+        data.append({'header_text': header_text, 'article_link': article_link, 'article_views': article_views})
 
     return data
 
@@ -27,28 +27,29 @@ def main():
         'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36',
         
     })
+    parsed_articles = []
     if req.status_code == 200:
         
         with open('test.html', 'wb') as f:
             f.write(req.content)
         soup = BeautifulSoup(req.content, 'html.parser')
-        parsed_articles = []
-        for a in articles_list:
-            try:
-                parsed_articles.append(parse_article(a))
-            except ValueError as e:
-                print(e)
+        try:
+            parsed_articles = parse_article(soup)
+        except ValueError as e:
+            print(e)
 
     
     pages = soup.find_all('a', class_='tm-pagination__page')
-    print(f'Found {pages[-1]} pages')
+    pages = int(pages[-1].text)
+    print(f'Found {pages} pages')
     print(pages)
 
     need_pages = min(5,pages)
 
-    for i in range(2, int(pages[-1].text) + 1):
+    for i in range(2, int(need_pages) + 1):
         url = 'https://habr.com/ru/feed/page{i}'
         print(f'Parsing page {i}...')
+        print(len(parsed_articles))
 
         time.sleep(5)
         req = requests.get(URL, headers={'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36'})
